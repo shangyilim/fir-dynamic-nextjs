@@ -20,6 +20,7 @@ export default function Home({allPostsData}) {
     <Layout home>
       <Head>
         <title>{siteTitle}</title>
+        <meta name="google-site-verification" content="SktOoGHe9L4GXP-GzPWToFXKLMHym1Who1OYKZm6eqs" />
       </Head>
       <section className={`${utilStyles.headingMd} ${utilStyles.padding1px}`}>
         <h2 className={utilStyles.headingLg}>Upcoming</h2>
