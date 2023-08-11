@@ -59,10 +59,9 @@ export default function Home({ allPostsData }) {
       const token = credential.accessToken;
       // The signed-in user info.
       const user = result.user;
-      setCurrentUser(user);
-
+      
+      // Generate a TOTP secret.
       const multiFactorSession = await multiFactor(user).getSession();
-
       const totpSecret = await TotpMultiFactorGenerator.generateSecret(multiFactorSession);
 
       const _totpUri = totpSecret.generateQrCodeUrl(
@@ -73,12 +72,12 @@ export default function Home({ allPostsData }) {
       const matrix = QrCode.generate(_totpUri);
       const uri = QrCode.render('svg-uri', matrix);
 
+      setCurrentUser(user);
       setTotpUri(uri);
       setTotpSecret(totpSecret);
 
     }
     catch (error) {
-      console.error(error);
 
       switch (error.code) {
         case "auth/multi-factor-auth-required":
@@ -89,6 +88,7 @@ export default function Home({ allPostsData }) {
 
           setTimeout(async () => {
 
+            // OTP typed by the user.
             const otpFromAuthenticator = prompt("2FA required from" + enrolledFactors);
             // default option this example assumes only TOTP enrolled
             const selectedIndex = 0;
@@ -125,7 +125,7 @@ export default function Home({ allPostsData }) {
 
   const authenticatorComplete = async () => {
     // Finalize the enrollment.
-
+    // Ask the user for a verification code from the authenticator app.
     const verificationCode = prompt("Please enter the 2FA code from Authenticator");
     if (verificationCode) {
 
@@ -206,7 +206,7 @@ export default function Home({ allPostsData }) {
       {!!totpUri && !totpCompleted && <img src={totpUri} width={500} height={500} />}
       {!!totpSecret && !totpCompleted && <div>Secret: {totpSecret.secretKey}</div>}
       {!!totpUri && !totpCompleted && <button onClick={authenticatorComplete}>I have added to Authenticator</button>}
-      {!!currentUser && <button onClick={unenrollUser}>Remove 2FA</button>}
+      {!!currentUser && !!totpCompleted && <button onClick={unenrollUser}>Remove 2FA</button>}
 
       <section className={`${utilStyles.headingMd} ${utilStyles.padding1px}`}>
         <h2 className={utilStyles.headingLg}>Upcoming</h2>
